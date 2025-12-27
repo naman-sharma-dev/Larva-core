@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Dict, Optional
+from core.intent_engine import IntentEngine
 
 
 @dataclass
@@ -14,11 +15,12 @@ class IntentFlow:
     def __init__(self, memory=None, session_manager=None):
         self.memory = memory
         self.session_manager = session_manager
+        self.engine = IntentEngine()
 
     def process_input(self, raw_input: str) -> Intent:
         cleaned_input = self._preprocess(raw_input)
         context = self._fetch_context()
-        intent_type = self._classify(cleaned_input, context)
+        intent_type = self.engine.classify(cleaned_input, context)
         entities = self._extract_entities(cleaned_input)
         normalized_intent = self._normalize(intent_type, entities)
         session_action = self._decide_session(normalized_intent)
@@ -37,15 +39,6 @@ class IntentFlow:
         if self.memory:
             return self.memory.get_context()
         return None
-
-    def _classify(self, text: str, context: Optional[dict]) -> str:
-        if "plan" in text:
-            return "planning"
-        if "decide" in text:
-            return "decision"
-        if "log" in text:
-            return "reflection"
-        return "informational"
 
     def _extract_entities(self, text: str) -> Dict[str, str]:
         entities = {}
