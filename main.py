@@ -26,13 +26,19 @@ def main():
         intent = flow.process_input(user_input)
         session = session_manager.handle(intent.session_action)
 
-        memory_touched = bool(intent.entities)
+        memory_written = False
+
+        if intent.intent_type in ["planning", "reflection"] and intent.entities:
+            for key, value in intent.entities.items():
+                memory.write_short_term(key, value)
+            memory_written = True
 
         print(f"\n[Turn {turn}]")
         print(f"Intent Type   : {intent.intent_type}")
         print(f"Entities      : {intent.entities if intent.entities else 'none'}")
         print(f"Session       : {session}")
-        print(f"Memory Used   : {'yes' if memory_touched else 'no'}")
+        print(f"Memory Write  : {'yes' if memory_written else 'no'}")
+        print(f"Memory State  : {memory.short_term}")
         print("-" * 40)
 
         turn += 1
