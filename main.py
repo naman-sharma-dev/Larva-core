@@ -12,6 +12,7 @@ def main():
     print("Type 'exit' to quit\n")
 
     turn = 1
+    last_session = None
 
     while True:
         user_input = input(">> ").strip()
@@ -33,6 +34,9 @@ def main():
                 memory.write_short_term(key, value)
             memory_written = True
 
+        if last_session and session == "no_session":
+            memory.short_term.clear()
+
         print(f"\n[Turn {turn}]")
         print(f"Intent Type   : {intent.intent_type}")
         print(f"Entities      : {intent.entities if intent.entities else 'none'}")
@@ -41,6 +45,7 @@ def main():
         print(f"Memory State  : {memory.short_term}")
         print("-" * 40)
 
+        last_session = session
         turn += 1
 
 
