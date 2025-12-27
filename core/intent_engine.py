@@ -16,3 +16,12 @@ class IntentEngine:
         if intent_type in ["planning", "decision"]:
             return "scope"
         return "unknown"
+
+    def clarification_prompt(self, clarification_type: str) -> str:
+        prompts = {
+            "goal": "What outcome are you aiming for?",
+            "time": "When should this happen?",
+            "scope": "What exactly do you want to work on?",
+            "unknown": "Can you clarify what you need?"
+        }
+        return prompts.get(clarification_type, prompts["unknown"])

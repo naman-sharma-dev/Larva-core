@@ -38,14 +38,15 @@ def main():
             memory.short_term.clear()
 
         print(f"\n[Turn {turn}]")
-        print(f"Intent Type         : {intent.intent_type}")
-        print(f"Confidence          : {intent.confidence}")
-        print(f"Needs Clarification : {'yes' if intent.needs_clarification else 'no'}")
-        print(f"Clarification Type  : {intent.clarification_type or 'none'}")
-        print(f"Entities            : {intent.entities if intent.entities else 'none'}")
-        print(f"Session             : {session}")
-        print(f"Memory Write        : {'yes' if memory_written else 'no'}")
-        print(f"Memory State        : {memory.short_term}")
+        print(f"Intent Type          : {intent.intent_type}")
+        print(f"Confidence           : {intent.confidence}")
+        print(f"Needs Clarification  : {'yes' if intent.needs_clarification else 'no'}")
+        print(f"Clarification Type   : {intent.clarification_type or 'none'}")
+        print(f"Suggested Prompt     : {intent.clarification_prompt or 'none'}")
+        print(f"Entities             : {intent.entities if intent.entities else 'none'}")
+        print(f"Session              : {session}")
+        print(f"Memory Write         : {'yes' if memory_written else 'no'}")
+        print(f"Memory State         : {memory.short_term}")
         print("-" * 40)
 
         last_session = session

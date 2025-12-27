@@ -12,6 +12,7 @@ class Intent:
     session_action: str
     needs_clarification: bool
     clarification_type: Optional[str]
+    clarification_prompt: Optional[str]
 
 
 class IntentFlow:
@@ -30,6 +31,7 @@ class IntentFlow:
 
         needs_clarification = confidence < 0.5
         clarification_type = None
+        clarification_prompt = None
 
         if normalized_intent in ["planning", "decision"] and not entities:
             needs_clarification = True
@@ -39,13 +41,19 @@ class IntentFlow:
                 cleaned_input, normalized_intent
             )
 
+        if needs_clarification and clarification_type:
+            clarification_prompt = self.engine.clarification_prompt(
+                clarification_type
+            )
+
         return Intent(
             intent_type=normalized_intent,
             entities=entities,
             confidence=confidence,
             session_action=session_action,
             needs_clarification=needs_clarification,
-            clarification_type=clarification_type
+            clarification_type=clarification_type,
+            clarification_prompt=clarification_prompt
         )
 
     def _preprocess(self, text: str) -> str:
