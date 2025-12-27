@@ -11,6 +11,7 @@ class Intent:
     confidence: float
     session_action: str
     needs_clarification: bool
+    clarification_type: Optional[str]
 
 
 class IntentFlow:
@@ -26,14 +27,25 @@ class IntentFlow:
         entities = self._extract_entities(cleaned_input)
         normalized_intent = self._normalize(intent_type, entities)
         session_action = self._decide_session(normalized_intent)
+
         needs_clarification = confidence < 0.5
+        clarification_type = None
+
+        if normalized_intent in ["planning", "decision"] and not entities:
+            needs_clarification = True
+            clarification_type = "scope"
+        elif needs_clarification:
+            clarification_type = self.engine.clarification_type(
+                cleaned_input, normalized_intent
+            )
 
         return Intent(
             intent_type=normalized_intent,
             entities=entities,
             confidence=confidence,
             session_action=session_action,
-            needs_clarification=needs_clarification
+            needs_clarification=needs_clarification,
+            clarification_type=clarification_type
         )
 
     def _preprocess(self, text: str) -> str:
