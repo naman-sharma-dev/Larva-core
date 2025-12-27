@@ -10,6 +10,7 @@ class Intent:
     entities: Dict[str, str]
     confidence: float
     session_action: str
+    needs_clarification: bool
 
 
 class IntentFlow:
@@ -25,12 +26,14 @@ class IntentFlow:
         entities = self._extract_entities(cleaned_input)
         normalized_intent = self._normalize(intent_type, entities)
         session_action = self._decide_session(normalized_intent)
+        needs_clarification = confidence < 0.5
 
         return Intent(
             intent_type=normalized_intent,
             entities=entities,
             confidence=confidence,
-            session_action=session_action
+            session_action=session_action,
+            needs_clarification=needs_clarification
         )
 
     def _preprocess(self, text: str) -> str:
