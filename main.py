@@ -37,8 +37,12 @@ def main():
         if last_session and session == "no_session":
             memory.short_term.clear()
 
+        ambiguity = "low" if intent.confidence < 0.5 else "high"
+
         print(f"\n[Turn {turn}]")
         print(f"Intent Type   : {intent.intent_type}")
+        print(f"Confidence    : {intent.confidence}")
+        print(f"Ambiguity     : {ambiguity}")
         print(f"Entities      : {intent.entities if intent.entities else 'none'}")
         print(f"Session       : {session}")
         print(f"Memory Write  : {'yes' if memory_written else 'no'}")

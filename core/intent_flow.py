@@ -21,7 +21,7 @@ class IntentFlow:
     def process_input(self, raw_input: str) -> Intent:
         cleaned_input = self._preprocess(raw_input)
         context = self._fetch_context()
-        intent_type = self.engine.classify(cleaned_input, context)
+        intent_type, confidence = self.engine.classify(cleaned_input, context)
         entities = self._extract_entities(cleaned_input)
         normalized_intent = self._normalize(intent_type, entities)
         session_action = self._decide_session(normalized_intent)
@@ -29,7 +29,7 @@ class IntentFlow:
         return Intent(
             intent_type=normalized_intent,
             entities=entities,
-            confidence=1.0,
+            confidence=confidence,
             session_action=session_action
         )
 
@@ -37,9 +37,7 @@ class IntentFlow:
         return text.strip().lower()
 
     def _fetch_context(self) -> Optional[dict]:
-        if self.memory:
-            return self.memory.get_context()
-        return None
+        return self.memory.get_context()
 
     def _extract_entities(self, text: str) -> Dict[str, str]:
         entities = {}
@@ -56,5 +54,3 @@ class IntentFlow:
         if intent_type in ["planning", "decision"]:
             return "start_or_continue"
         return "one_shot"
-
-
