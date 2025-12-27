@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Dict, Optional
 from core.intent_engine import IntentEngine
+from core.memory import Memory
 
 
 @dataclass
@@ -13,7 +14,7 @@ class Intent:
 
 class IntentFlow:
     def __init__(self, memory=None, session_manager=None):
-        self.memory = memory
+        self.memory = memory or Memory()
         self.session_manager = session_manager
         self.engine = IntentEngine()
 
@@ -55,3 +56,5 @@ class IntentFlow:
         if intent_type in ["planning", "decision"]:
             return "start_or_continue"
         return "one_shot"
+
+
