@@ -1,16 +1,21 @@
-class Memory:
+class ShortTermMemory:
     def __init__(self):
-        self.short_term = {}
-        self.long_term = {}
+        self._data = {}
 
-    def get_context(self):
-        return self.short_term
+    def reset(self):
+        self._data = {}
 
-    def write_short_term(self, key: str, value):
-        self.short_term[key] = value
+    def write(self, key, value):
+        self._data[key] = value
 
-    def write_long_term(self, key: str, value):
-        self.long_term[key] = value
+    def read(self, key):
+        return self._data.get(key)
 
-    def read_long_term(self, key: str):
-        return self.long_term.get(key)
+    def has(self, key):
+        return key in self._data
+
+    def get_slot(self, slot_name):
+        return self._data.get(slot_name)
+
+    def has_slot(self, slot_name):
+        return slot_name in self._data

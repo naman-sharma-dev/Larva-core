@@ -1,82 +1,56 @@
-from core.intent_flow import IntentFlow, Intent
+from core.intent_engine import IntentEngine
+from core.intent_flow import IntentFlow
 from core.session_manager import SessionManager
-from core.memory import Memory
-
-
-MAX_CLARIFICATION_TURNS = 2
+from core.memory import ShortTermMemory
+from core.executor import Executor
 
 
 def main():
-    memory = Memory()
-    session_manager = SessionManager()
-    flow = IntentFlow(memory=memory, session_manager=session_manager)
+    engine = IntentEngine()
+    memory = ShortTermMemory()
+    flow = IntentFlow(memory)
+    sessions = SessionManager()
+    executor = Executor()
 
-    print("Larva Core v0")
-    print("Type 'exit' to quit\n")
-
-    turn = 1
-    last_session = None
-
-    pending_intent: Intent | None = None
-    clarification_turns = 0
+    active_intent = None
 
     while True:
-        user_input = input(">> ").strip()
-
+        user_input = input("You: ").strip()
         if not user_input:
             continue
 
-        if user_input.lower() in ["exit", "quit"]:
-            print("Session closed.")
-            break
-
-        if pending_intent:
-            intent = flow.resolve_clarification(pending_intent, user_input)
-            clarification_turns += 1
+        # Clarification path
+        if active_intent and active_intent.needs_clarification:
+            active_intent = flow.handle_clarification_answer(active_intent, user_input)
         else:
-            intent = flow.process_input(user_input)
+            active_intent = engine.classify(user_input)
 
-        if intent.needs_clarification:
-            if clarification_turns >= MAX_CLARIFICATION_TURNS:
-                print("\nLarva: I need more specific input to continue. Let's try again later.")
-                print("-" * 40)
-                pending_intent = None
-                clarification_turns = 0
-                turn += 1
-                continue
+        # Process intent (clarification, memory, conflict, etc.)
+        active_intent = flow.process(active_intent)
 
-            print(f"\nLarva: {intent.clarification_prompt}")
-            print("-" * 40)
-            pending_intent = intent
-            turn += 1
+        # Still needs clarification
+        if active_intent.needs_clarification:
+            print(f"Larva: {active_intent.clarification_prompt}")
             continue
 
-        pending_intent = None
-        clarification_turns = 0
+        # Intent resolved → session handling
+        session_action = sessions.start_or_continue(active_intent)
 
-        session = session_manager.handle(intent.session_action)
+        # Write resolved slots to memory
+        for slot, data in active_intent.entities.items():
+            memory.write(slot, data["value"])
 
-        memory_written = False
+        # 🔹 EXECUTION
+        response = executor.execute(active_intent)
+        print(f"Larva: {response}")
 
-        if intent.intent_type in ["planning", "reflection"] and intent.entities:
-            for key, value in intent.entities.items():
-                memory.write_short_term(key, value)
-            memory_written = True
-
-        if last_session and session == "no_session":
-            memory.short_term.clear()
-
-        print(f"\n[Turn {turn}]")
-        print(f"Intent Type   : {intent.intent_type}")
-        print(f"Confidence    : {intent.confidence}")
-        print(f"Entities      : {intent.entities if intent.entities else 'none'}")
-        print(f"Session       : {session}")
-        print(f"Memory Write  : {'yes' if memory_written else 'no'}")
-        print(f"Memory State  : {memory.short_term}")
+        print("Intent Resolved")
+        print(f"Type    : {active_intent.intent_type}")
+        print(f"Entities: {active_intent.entities}")
+        print(f"Session : {session_action}")
         print("-" * 40)
 
-        last_session = session
-        turn += 1
+        active_intent = None
 
 
 if __name__ == "__main__":
