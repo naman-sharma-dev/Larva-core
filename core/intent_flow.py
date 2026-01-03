@@ -13,6 +13,7 @@ class Intent:
     needs_clarification: bool
     clarification_type: Optional[str]
     clarification_prompt: Optional[str]
+    raw_input: str
 
 
 class IntentFlow:
@@ -53,8 +54,13 @@ class IntentFlow:
             session_action=session_action,
             needs_clarification=needs_clarification,
             clarification_type=clarification_type,
-            clarification_prompt=clarification_prompt
+            clarification_prompt=clarification_prompt,
+            raw_input=raw_input
         )
+
+    def resolve_clarification(self, previous_intent: Intent, clarification_answer: str) -> Intent:
+        merged_input = f"{previous_intent.raw_input} {clarification_answer}"
+        return self.process_input(merged_input)
 
     def _preprocess(self, text: str) -> str:
         return text.strip().lower()

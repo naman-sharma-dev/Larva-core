@@ -1,6 +1,9 @@
-from core.intent_flow import IntentFlow
+from core.intent_flow import IntentFlow, Intent
 from core.session_manager import SessionManager
 from core.memory import Memory
+
+
+MAX_CLARIFICATION_TURNS = 2
 
 
 def main():
@@ -14,6 +17,9 @@ def main():
     turn = 1
     last_session = None
 
+    pending_intent: Intent | None = None
+    clarification_turns = 0
+
     while True:
         user_input = input(">> ").strip()
 
@@ -24,13 +30,29 @@ def main():
             print("Session closed.")
             break
 
-        intent = flow.process_input(user_input)
+        if pending_intent:
+            intent = flow.resolve_clarification(pending_intent, user_input)
+            clarification_turns += 1
+        else:
+            intent = flow.process_input(user_input)
 
         if intent.needs_clarification:
+            if clarification_turns >= MAX_CLARIFICATION_TURNS:
+                print("\nLarva: I need more specific input to continue. Let's try again later.")
+                print("-" * 40)
+                pending_intent = None
+                clarification_turns = 0
+                turn += 1
+                continue
+
             print(f"\nLarva: {intent.clarification_prompt}")
             print("-" * 40)
+            pending_intent = intent
             turn += 1
             continue
+
+        pending_intent = None
+        clarification_turns = 0
 
         session = session_manager.handle(intent.session_action)
 
@@ -45,12 +67,12 @@ def main():
             memory.short_term.clear()
 
         print(f"\n[Turn {turn}]")
-        print(f"Intent Type          : {intent.intent_type}")
-        print(f"Confidence           : {intent.confidence}")
-        print(f"Entities             : {intent.entities if intent.entities else 'none'}")
-        print(f"Session              : {session}")
-        print(f"Memory Write         : {'yes' if memory_written else 'no'}")
-        print(f"Memory State         : {memory.short_term}")
+        print(f"Intent Type   : {intent.intent_type}")
+        print(f"Confidence    : {intent.confidence}")
+        print(f"Entities      : {intent.entities if intent.entities else 'none'}")
+        print(f"Session       : {session}")
+        print(f"Memory Write  : {'yes' if memory_written else 'no'}")
+        print(f"Memory State  : {memory.short_term}")
         print("-" * 40)
 
         last_session = session
