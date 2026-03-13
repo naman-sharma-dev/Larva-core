@@ -14,10 +14,3 @@ venv/
 # OS files
 .DS_Store
 Thumbs.db
-
-# Android / Gradle build artifacts
-StickerSnip/.gradle/
-StickerSnip/build/
-StickerSnip/app/build/
-StickerSnip/local.properties
-*.iml
