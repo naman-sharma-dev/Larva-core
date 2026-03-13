@@ -36,7 +36,8 @@ class StickerContentProvider : ContentProvider() {
     private lateinit var packManager: PackManager
 
     override fun onCreate(): Boolean {
-        packManager = PackManager(context!!)
+        val ctx = context ?: return false
+        packManager = PackManager(ctx)
         return true
     }
 

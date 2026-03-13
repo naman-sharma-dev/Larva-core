@@ -3,6 +3,7 @@ package com.stickersnip.app
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.os.Build
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -66,8 +67,13 @@ class PackManager(private val context: Context) {
         val fileName = "sticker_${UUID.randomUUID()}.webp"
         val file = File(packDir, fileName)
         FileOutputStream(file).use { out ->
-            @Suppress("DEPRECATION")
-            scaled.compress(Bitmap.CompressFormat.WEBP, 90, out)
+            val format = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                Bitmap.CompressFormat.WEBP_LOSSY
+            } else {
+                @Suppress("DEPRECATION")
+                Bitmap.CompressFormat.WEBP
+            }
+            scaled.compress(format, 90, out)
         }
         if (scaled !== bitmap) {
             scaled.recycle()
