@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">StickerSnip</string>
+    <string name="create_pack">Create Sticker Pack</string>
+    <string name="add_to_whatsapp">Add to WhatsApp</string>
+    <string name="add_to_pack">Add to Pack</string>
+    <string name="pick_images">Pick Images</string>
+    <string name="pack_name_hint">Pack Name</string>
+    <string name="pack_author_hint">Author</string>
+    <string name="no_packs">No sticker packs yet.\nTap + to create one!</string>
+    <string name="stickers_count">%d stickers</string>
+    <string name="min_stickers_warning">Need at least 3 stickers to add to WhatsApp</string>
+    <string name="whatsapp_not_installed">WhatsApp is not installed</string>
+    <string name="sticker_added">Sticker added to pack</string>
+    <string name="saved_stickers">Saved Stickers</string>
+</resources>
